@@ -1,0 +1,44 @@
+model User {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+  todoApps TodoApp[] @relation("Owner")
+  memberships Membership[]
+}
+
+model TodoApp {
+  id          String       @id @default(uuid())
+  name        String
+  ownerId     String
+  owner       User         @relation("Owner", fields: [ownerId], references: [id])
+  memberships Membership[]
+  tasks       Task[]
+}
+
+model Membership {
+  id         String   @id @default(uuid())
+  userId     String
+  todoAppId  String
+  role       Role
+  user       User     @relation(fields: [userId], references: [id])
+  todoApp    TodoApp  @relation(fields: [todoAppId], references: [id])
+}
+
+model Task {
+  id         String      @id @default(uuid())
+  title      String
+  status     TaskStatus  @default(IN_PROGRESS)
+  todoAppId  String
+  todoApp    TodoApp     @relation(fields: [todoAppId], references: [id])
+}
+
+enum TaskStatus {
+  IN_PROGRESS
+  COMPLETED
+  STALE
+}
+
+enum Role {
+  VIEWER
+  EDITOR
+}
