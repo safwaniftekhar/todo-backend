@@ -10,18 +10,23 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt.guard';
 import { TodoAppsService } from './todo-apps.service';
-import { Request } from 'express';
 import { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { CreateTodoAppDto } from './dto/create-todo-app.dto';
 
 @ApiTags('Todo Apps')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('todo-apps')
 export class TodoAppsController {
   constructor(private todoAppsService: TodoAppsService) {}
 
   @Post()
-  create(@Req() req: AuthenticatedRequest, @Body() body: { name: string }) {
+  @ApiBody({ type: CreateTodoAppDto })
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: CreateTodoAppDto,
+  ) {
     return this.todoAppsService.create(body.name, req.user['userId']);
   }
 

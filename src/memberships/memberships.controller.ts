@@ -11,21 +11,17 @@ import {
 } from '@nestjs/common';
 import { MembershipsService } from './memberships.service';
 import { JwtAuthGuard } from '../auth/jwt.guard';
-import { Role } from '@prisma/client';
-import { Request } from 'express';
 import { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { InviteMemberDto } from './dto/invite-member.dto';
+import { UpdateMemberRoleDto } from './dto/update-member-role.dto';
 
-@ApiTags('Todo Apps')
+@ApiTags('Memberships')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
 @Controller('memberships')
 export class MembershipsController {
   constructor(private membershipsService: MembershipsService) {}
-
-  //   @Get(':todoAppId')
-  //   list(@Param('todoAppId') appId: string, @Req() req: AuthenticatedRequest) {
-  //     return this.membershipsService.listMembers(appId, req.user['userId']);
-  //   }
 
   @Get(':todoAppId')
   list(@Param('todoAppId') appId: string, @Req() req: AuthenticatedRequest) {
@@ -33,30 +29,32 @@ export class MembershipsController {
   }
 
   @Post(':todoAppId')
+  @ApiBody({ type: InviteMemberDto })
   invite(
     @Param('todoAppId') appId: string,
-    @Body() body: { email: string; role: Role },
+    @Body() body: InviteMemberDto,
     @Req() req: AuthenticatedRequest,
   ) {
     return this.membershipsService.inviteMember(
       appId,
-      req.user['userId'],
+      req.user.userId,
       body.email,
       body.role,
     );
   }
 
   @Patch(':todoAppId/:memberId')
+  @ApiBody({ type: UpdateMemberRoleDto })
   updateRole(
     @Param('todoAppId') appId: string,
     @Param('memberId') memberId: string,
-    @Body() body: { role: Role },
+    @Body() body: UpdateMemberRoleDto,
     @Req() req: AuthenticatedRequest,
   ) {
     return this.membershipsService.updateRole(
       appId,
       memberId,
-      req.user['userId'],
+      req.user.userId,
       body.role,
     );
   }
@@ -70,7 +68,7 @@ export class MembershipsController {
     return this.membershipsService.removeMember(
       appId,
       memberId,
-      req.user['userId'],
+      req.user.userId,
     );
   }
 }
