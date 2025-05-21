@@ -25,10 +25,25 @@ export class TasksService {
     if (!isEditor) throw new ForbiddenException('Editor access required');
   }
 
+  async getTodoAppIdByTaskId(taskId: string): Promise<string> {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      select: { todoAppId: true },
+    });
+
+    if (!task) throw new NotFoundException('Task not found');
+    return task.todoAppId;
+  }
+
   async create(todoAppId: string, title: string, userId: string) {
+    // Check already done in controller, but this is an extra safety check
     await this.checkEditorPermission(todoAppId, userId);
+
     return this.prisma.task.create({
-      data: { title, todoAppId },
+      data: {
+        title,
+        todoAppId,
+      },
     });
   }
 
@@ -39,9 +54,11 @@ export class TasksService {
     });
 
     if (!app) throw new NotFoundException();
+
     const hasAccess =
       app.ownerId === userId ||
       app.memberships.some((m) => m.userId === userId);
+
     if (!hasAccess) throw new ForbiddenException();
 
     return this.prisma.task.findMany({
@@ -50,7 +67,10 @@ export class TasksService {
   }
 
   async update(taskId: string, title: string, userId: string) {
-    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
     if (!task) throw new NotFoundException();
 
     await this.checkEditorPermission(task.todoAppId, userId);
@@ -62,7 +82,10 @@ export class TasksService {
   }
 
   async changeStatus(taskId: string, status: TaskStatus, userId: string) {
-    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
     if (!task) throw new NotFoundException();
 
     await this.checkEditorPermission(task.todoAppId, userId);
@@ -74,11 +97,16 @@ export class TasksService {
   }
 
   async delete(taskId: string, userId: string) {
-    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
     if (!task) throw new NotFoundException();
 
     await this.checkEditorPermission(task.todoAppId, userId);
 
-    return this.prisma.task.delete({ where: { id: taskId } });
+    return this.prisma.task.delete({
+      where: { id: taskId },
+    });
   }
 }

@@ -14,7 +14,9 @@ import { JwtAuthGuard } from '../auth/jwt.guard';
 import { Role } from '@prisma/client';
 import { Request } from 'express';
 import { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Todo Apps')
 @UseGuards(JwtAuthGuard)
 @Controller('memberships')
 export class MembershipsController {

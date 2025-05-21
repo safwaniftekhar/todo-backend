@@ -2,7 +2,9 @@ import { Controller, Post, Body, Req, UseGuards, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt.guard';
 import { Request } from 'express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Todo Apps')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
