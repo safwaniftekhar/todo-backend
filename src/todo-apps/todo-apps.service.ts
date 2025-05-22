@@ -13,7 +13,7 @@ export class TodoAppsService {
         memberships: {
           create: {
             userId,
-            role: 'EDITOR', // owner is also an editor
+            role: 'EDITOR',
           },
         },
       },

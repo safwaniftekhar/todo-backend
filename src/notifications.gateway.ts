@@ -9,7 +9,7 @@ import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // Or restrict to your frontend domain
+    origin: '*', 
   },
 })
 export class NotificationsGateway
@@ -17,7 +17,7 @@ export class NotificationsGateway
 {
   @WebSocketServer() server: Server;
   private readonly logger = new Logger(NotificationsGateway.name);
-  private users = new Map<string, string>(); // userId -> socketId
+  private users = new Map<string, string>(); 
 
   handleConnection(socket: Socket) {
     const userId = socket.handshake.query.userId as string;

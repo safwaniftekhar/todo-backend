@@ -6,28 +6,25 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend integration
   app.enableCors();
 
-  // Enable global validation pipe for DTO validation
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,        // Strips unknown properties
-      forbidNonWhitelisted: true, // Throws error if unknown values are present
-      transform: true,        // Automatically transform payloads to DTO classes
+      whitelist: true,        
+      forbidNonWhitelisted: true,
+      transform: true,        
     }),
   );
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('Collaborative ToDo App API')
     .setDescription('API documentation for the collaborative ToDo project')
     .setVersion('1.0')
-    .addBearerAuth() // Enable JWT auth
+    .addBearerAuth() 
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // Accessible at http://localhost:3000/api
+  SwaggerModule.setup('api', app, document); 
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

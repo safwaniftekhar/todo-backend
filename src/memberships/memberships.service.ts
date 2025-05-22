@@ -44,14 +44,6 @@ export class MembershipsService {
     });
     if (existing) throw new ForbiddenException('User already a member');
 
-    // return this.prisma.membership.create({
-    //   data: {
-    //     todoAppId: appId,
-    //     userId: invitedUser.id,
-    //     role,
-    //   },
-    // });
-
     const membership = await this.prisma.membership.create({
       data: {
         userId: invitedUser.id,
