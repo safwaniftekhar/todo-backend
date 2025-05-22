@@ -35,13 +35,20 @@ export class TasksService {
     return task.todoAppId;
   }
 
-  async create(todoAppId: string, title: string, userId: string) {
-    // Check already done in controller, but this is an extra safety check
+  async create(
+    todoAppId: string,
+    title: string,
+    userId: string,
+    dueDate?: string,
+    priority?: number,
+  ) {
     await this.checkEditorPermission(todoAppId, userId);
 
     return this.prisma.task.create({
       data: {
         title,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
+        priority,
         todoAppId,
       },
     });
@@ -66,18 +73,25 @@ export class TasksService {
     });
   }
 
-  async update(taskId: string, title: string, userId: string) {
-    const task = await this.prisma.task.findUnique({
-      where: { id: taskId },
-    });
-
+  async update(
+    taskId: string,
+    userId: string,
+    title?: string,
+    dueDate?: string,
+    priority?: number,
+  ) {
+    const task = await this.prisma.task.findUnique({ where: { id: taskId } });
     if (!task) throw new NotFoundException();
 
     await this.checkEditorPermission(task.todoAppId, userId);
 
     return this.prisma.task.update({
       where: { id: taskId },
-      data: { title },
+      data: {
+        title,
+        dueDate: dueDate ? new Date(dueDate) : undefined,
+        priority,
+      },
     });
   }
 

@@ -32,8 +32,17 @@ export class TasksController {
     @Body() body: CreateTaskDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    await this.tasksService.checkEditorPermission(todoAppId, req.user['userId']);
-    return this.tasksService.create(todoAppId, body.title, req.user['userId']);
+    await this.tasksService.checkEditorPermission(
+      todoAppId,
+      req.user['userId'],
+    );
+    return this.tasksService.create(
+      todoAppId,
+      body.title,
+      req.user['userId'],
+      body.dueDate,
+      body.priority,
+    );
   }
 
   @Get(':todoAppId')
@@ -53,8 +62,17 @@ export class TasksController {
     @Req() req: AuthenticatedRequest,
   ) {
     const todoAppId = await this.tasksService.getTodoAppIdByTaskId(id);
-    await this.tasksService.checkEditorPermission(todoAppId, req.user['userId']);
-    return this.tasksService.update(id, body.title, req.user['userId']);
+    await this.tasksService.checkEditorPermission(
+      todoAppId,
+      req.user['userId'],
+    );
+    return this.tasksService.update(
+      id,
+      req.user['userId'],
+      body.title,
+      body.dueDate,
+      body.priority,
+    );
   }
 
   @Patch(':id/status')
@@ -65,7 +83,10 @@ export class TasksController {
     @Req() req: AuthenticatedRequest,
   ) {
     const todoAppId = await this.tasksService.getTodoAppIdByTaskId(id);
-    await this.tasksService.checkEditorPermission(todoAppId, req.user['userId']);
+    await this.tasksService.checkEditorPermission(
+      todoAppId,
+      req.user['userId'],
+    );
     return this.tasksService.changeStatus(id, body.status, req.user['userId']);
   }
 
@@ -73,7 +94,10 @@ export class TasksController {
   @ApiOperation({ summary: 'Delete a task' })
   async delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     const todoAppId = await this.tasksService.getTodoAppIdByTaskId(id);
-    await this.tasksService.checkEditorPermission(todoAppId, req.user['userId']);
+    await this.tasksService.checkEditorPermission(
+      todoAppId,
+      req.user['userId'],
+    );
     return this.tasksService.delete(id, req.user['userId']);
   }
 }

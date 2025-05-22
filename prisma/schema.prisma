@@ -1,3 +1,13 @@
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite", etc.
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
 model User {
   id       String   @id @default(uuid())
   email    String   @unique
@@ -28,9 +38,12 @@ model Task {
   id         String      @id @default(uuid())
   title      String
   status     TaskStatus  @default(IN_PROGRESS)
+  dueDate    DateTime?   
+  priority   Int?       
   todoAppId  String
   todoApp    TodoApp     @relation(fields: [todoAppId], references: [id])
 }
+
 
 enum TaskStatus {
   IN_PROGRESS
