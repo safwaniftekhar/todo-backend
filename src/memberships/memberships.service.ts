@@ -5,10 +5,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { NotificationsGateway } from 'src/notifications.gateway';
 
 @Injectable()
 export class MembershipsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notifications: NotificationsGateway,
+  ) {}
 
   private async isOwner(appId: string, userId: string): Promise<boolean> {
     const app = await this.prisma.todoApp.findUnique({ where: { id: appId } });
@@ -40,13 +44,28 @@ export class MembershipsService {
     });
     if (existing) throw new ForbiddenException('User already a member');
 
-    return this.prisma.membership.create({
+    // return this.prisma.membership.create({
+    //   data: {
+    //     todoAppId: appId,
+    //     userId: invitedUser.id,
+    //     role,
+    //   },
+    // });
+
+    const membership = await this.prisma.membership.create({
       data: {
-        todoAppId: appId,
         userId: invitedUser.id,
+        todoAppId: appId,
         role,
       },
     });
+
+    this.notifications.notifyUser(invitedUser.id, {
+      type: 'INVITATION',
+      message: `You’ve been invited to a ToDo App.`,
+    });
+
+    return membership;
   }
 
   async updateRole(
