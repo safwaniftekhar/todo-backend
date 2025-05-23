@@ -11,11 +11,11 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signup(email: string, password: string) {
+  async signup(email: string, password: string, name:string) {
     const existing = await this.usersService.findByEmail(email);
     if (existing) throw new BadRequestException('Email already in use');
 
-    const user = await this.usersService.createUser(email, password);
+    const user = await this.usersService.createUser(email, password, name);
     return this.signToken(user.id, user.email);
   }
   async login(email: string, password: string) {
