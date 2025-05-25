@@ -51,6 +51,7 @@ export class TasksController {
     @Param('todoAppId') todoAppId: string,
     @Req() req: AuthenticatedRequest,
   ) {
+    console.log("hellooooo")
     return this.tasksService.findAll(todoAppId, req.user['userId']);
   }
 

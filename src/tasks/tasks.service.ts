@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -54,24 +55,83 @@ export class TasksService {
     });
   }
 
+  // async findAll(todoAppId: string, userId: string) {
+  //   const app = await this.prisma.todoApp.findUnique({
+  //     where: { id: todoAppId },
+  //     include: { memberships: true },
+  //   });
+
+  //   if (!app) throw new NotFoundException();
+
+  //   const hasAccess =
+  //     app.ownerId === userId ||
+  //     app.memberships.some((m) => m.userId === userId);
+
+  //   Logger.log('app.memberships', app.memberships);
+
+  //   if (!hasAccess) throw new ForbiddenException();
+
+  //   const access = {
+  //     role:
+  //       app.ownerId === userId
+  //         ? 'owner'
+  //         : app?.memberships?.filter((item: any) => item?.userId === userId)[0]
+  //             ?.role,
+  //   };
+
+  //   console.log('access', access);
+
+  //   const task = this.prisma.task.findMany({
+  //     where: { todoAppId },
+  //   });
+
+  //   console.log("task", task)
+
+  //   const responseData = {
+  //     tasks: task,
+  //     access: access,
+  //   };
+
+  //   return responseData;
+  // }
+
   async findAll(todoAppId: string, userId: string) {
-    const app = await this.prisma.todoApp.findUnique({
-      where: { id: todoAppId },
-      include: { memberships: true },
-    });
+  const app = await this.prisma.todoApp.findUnique({
+    where: { id: todoAppId },
+    include: { memberships: true },
+  });
 
-    if (!app) throw new NotFoundException();
-
-    const hasAccess =
-      app.ownerId === userId ||
-      app.memberships.some((m) => m.userId === userId);
-
-    if (!hasAccess) throw new ForbiddenException();
-
-    return this.prisma.task.findMany({
-      where: { todoAppId },
-    });
+  if (!app) {
+    throw new NotFoundException('TodoApp not found');
   }
+
+  const hasAccess =
+    app.ownerId === userId ||
+    app.memberships.some((m) => m.userId === userId);
+
+  if (!hasAccess) {
+    throw new ForbiddenException('Access denied');
+  }
+
+  const access = {
+    role:
+      app.ownerId === userId
+        ? 'owner'
+        : app.memberships.find((m) => m.userId === userId)?.role ?? 'member',
+  };
+
+  Logger.log('User access', access);
+
+  const tasks = await this.prisma.task.findMany({
+    where: { todoAppId },
+  });
+
+  return {
+    tasks,
+    access,
+  };
+}
+
 
   async update(
     taskId: string,

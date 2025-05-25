@@ -32,7 +32,7 @@ model Membership {
   todoAppId  String
   role       Role
   user       User     @relation(fields: [userId], references: [id])
-  todoApp    TodoApp  @relation(fields: [todoAppId], references: [id])
+  todoApp    TodoApp  @relation(fields: [todoAppId], references: [id], onDelete: Cascade)
 }
 
 model Task {
